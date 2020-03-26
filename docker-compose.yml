@@ -1,0 +1,50 @@
+version: "3"
+services:
+  #####################################
+  # Apache Reverse Proxy              #
+  #####################################
+  reverse:
+    container_name: reverse
+    image: httpd:2.4-alpine
+    logging:
+      driver: ${LOG_DRIVER}
+      options:
+        max-file: ${LOG_MAX_FILES}
+        max-size: ${LOG_MAX_SIZE}
+    env_file:
+      - ./reverse/.env
+    ports:
+      - ${HTTP_PORT}:${HTTP_PORT}
+      - ${HTTPS_PORT}:${HTTPS_PORT}
+    volumes:
+      - ./reverse/httpd.conf:/usr/local/apache2/conf/httpd.conf
+      - ./reverse/extra/httpd-vhosts.conf:/usr/local/apache2/conf/extra/httpd-vhosts.conf
+      - ./reverse/extra/httpd-ssl.conf:/usr/local/apache2/conf/extra/httpd-ssl.conf
+      - ./reverse/ssl:/usr/local/apache2/ssl
+    networks:
+      - docker-registry-poc
+  #####################################
+  # Express                           #
+  #####################################
+  webserver:
+    container_name: webserver
+    image: docker-poc-webserver-dev
+    logging:
+      driver: ${LOG_DRIVER}
+      options:
+        max-file: ${LOG_MAX_FILES}
+        max-size: ${LOG_MAX_SIZE}
+    build:
+      context: ./webserver
+    ports:
+      - "${EXPRESS_HOST_PORT}:${EXPRESS_CONTAINER_PORT}"
+    env_file:
+      - ./webserver/.env
+    volumes:
+      - ./webserver:/server:delegated
+      - /server/node_modules
+    networks:
+      - docker-registry-poc
+networks:
+  docker-registry-poc:
+    driver: "bridge"
