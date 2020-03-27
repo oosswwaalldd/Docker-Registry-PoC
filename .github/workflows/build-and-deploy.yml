@@ -43,7 +43,7 @@ jobs:
         working-directory: ./reverse
         run: docker build --file $REVERSE_DOCKERFILE --tag $REVERSE_IMAGE:$VERSION .
       - name: Log into GitHub Registry
-        run: cat ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u oosswwaalldd --password-stdin
+        run: cat ${{ secrets.DOCKER_REGISTRY_TOKEN }} | docker login docker.pkg.github.com -u ${{ secrets.DOCKER_REGISTRY_USER }} --password-stdin
       - name: Push Images to Docker Registry
         run: |
           docker push $REVERSE_IMAGE:$VERSION
