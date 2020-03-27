@@ -14,6 +14,15 @@ env:
   WEBSERVER_IMAGE: docker.pkg.github.com/oosswwaalldd/docker-registry-poc/docker-poc-webserver
   REVERSE_DOCKERFILE: prod.Dockerfile
   REVERSE_IMAGE: docker.pkg.github.com/oosswwaalldd/docker-registry-poc/docker-poc-reverse   
+  PROJECT_FOLDER: /home/simpi/deploy
+  WEBSERVER_ENV_FILE: .webserver.env
+  WEBSERVER_CONTAINER_NAME: docker-poc-webserver
+  REVERSE_CONTAINER_NAME: docker-poc-reverse
+  REVERSE_ENV_FILE: .reverse.env
+  NETWORK_NAME: docker-registry-poc
+  LOG_DRIVER: json-file
+  LOG_FILES: 5
+  LOG_SIZE: 10m
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   build:
@@ -53,7 +62,6 @@ jobs:
         run: |
           docker push $REVERSE_IMAGE:$VERSION
           docker push $WEBSERVER_IMAGE:$VERSION 
-          exit 1
   deploy:
     # Depends on
     needs: [build]
@@ -61,29 +69,24 @@ jobs:
     runs-on: ubuntu-latest
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:       
+    - name: Check out master branch  
+      uses: actions/checkout@v2
+      with:
+        ref: master
     - name: NodeJS Project Information
       id: get_version
       uses: gregoranders/nodejs-project-info@v0.0.1
       with:
         path: ./webserver/package.json
+    - name: Set Project Version
+      run: echo ::set-env name=VERSION::${{ steps.get_version.outputs.version }}
     - name: Test version
-      run: echo ${{ steps.get_version.outputs.version }}
+      run: |
+        echo ${{ steps.get_version.outputs.version }}
+        exit 1
     # Connects to test server and run commands    
     - name: SSH Deploy Commands
       uses: appleboy/ssh-action@v0.0.7
-      env:
-        VERSION: 0.0.1
-        PROJECT_FOLDER: /home/simpi/deploy
-        WEBSERVER_ENV_FILE: .webserver.env
-        WEBSERVER_CONTAINER_NAME: docker-poc-webserver
-        WEBSERVER_IMAGE: docker.pkg.github.com/oosswwaalldd/docker-registry-poc/docker-poc-webserver
-        REVERSE_CONTAINER_NAME: docker-poc-reverse
-        REVERSE_ENV_FILE: .reverse.env
-        REVERSE_IMAGE: docker.pkg.github.com/oosswwaalldd/docker-registry-poc/docker-poc-reverse
-        NETWORK_NAME: docker-registry-poc
-        LOG_DRIVER: json-file
-        LOG_FILES: 5
-        LOG_SIZE: 10m
       with:
         host: ${{ secrets.STAGE_HOST }}
         username: ${{ secrets.STAGE_SSH_USER }}
