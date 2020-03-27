@@ -7,8 +7,8 @@ name: First Github Actions Ever!
 on:
   push:
     branches: [ master ]
-#     paths-ignore: 
-#       - ".github/workflows/build-and-deploy.yml"
+    paths-ignore: 
+      - ".github/workflows/build-and-deploy.yml"
 env:
   WEBSERVER_DOCKERFILE: prod.Dockerfile
   WEBSERVER_IMAGE: docker.pkg.github.com/oosswwaalldd/docker-registry-poc/docker-poc-webserver
@@ -80,10 +80,6 @@ jobs:
         path: ./webserver/package.json
     - name: Set Project Version
       run: echo ::set-env name=VERSION::${{ steps.get_version.outputs.version }}
-    - name: Test version
-      run: |
-        echo ${{ steps.get_version.outputs.version }}
-        exit 1
     # Connects to test server and run commands    
     - name: SSH Deploy Commands
       uses: appleboy/ssh-action@v0.0.7
