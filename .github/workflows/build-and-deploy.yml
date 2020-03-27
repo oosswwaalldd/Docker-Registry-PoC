@@ -29,9 +29,9 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: Yarn install && build
         working-directory: ./webserver
-      - run: pwd && ls -aslh && cd webserver && pwd && ls -aslh
-      - run: yarn install
-      - run: yarn run build --if-present
+        run: |
+          yarn install
+          yarn run build --if-present
   deploy:
     # Depends on
     needs: [build]
