@@ -47,9 +47,7 @@ jobs:
       - name: Push Images to Docker Registry
         run: |
           docker push $REVERSE_IMAGE:$VERSION
-          docker push $WEBSERVER_IMAGE:$VERSION
-          exit 1
-  
+          docker push $WEBSERVER_IMAGE:$VERSION  
   deploy:
     # Depends on
     needs: [build]
