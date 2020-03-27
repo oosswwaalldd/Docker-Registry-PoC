@@ -31,7 +31,7 @@ jobs:
         working-directory: ./webserver
         run: |
           yarn install
-          yarn run build --if-present
+          yarn run build
   deploy:
     # Depends on
     needs: [build]
