@@ -32,4 +32,4 @@ jobs:
         script: |
           cd deploy
           whoami
-          lsd
+          ls -aslh
