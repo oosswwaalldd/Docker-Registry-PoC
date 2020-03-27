@@ -31,5 +31,4 @@ jobs:
         script_stop: true
         script: |
           cd deploy
-          whoami
-          ls -aslh
+          ./deploy.sh
