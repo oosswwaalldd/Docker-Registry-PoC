@@ -12,15 +12,32 @@ on:
         
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [10.x]
+    steps: 
+      - name: Check out master branch  
+        uses: actions/checkout@v2
+        with:
+          ref: master
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: yarn install
+      - run: yarn run build --if-present
   deploy:
+    # Depends on
+    needs: [build]
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:       
-    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-#     - uses: actions/checkout@v2
     # Connects to test server and run commands    
-    - name: SSH Commands
+    - name: SSH Deploy Commands
       uses: appleboy/ssh-action@v0.0.7
       env:
         VERSION: 0.0.1
