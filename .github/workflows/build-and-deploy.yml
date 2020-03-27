@@ -25,6 +25,10 @@ jobs:
       REVERSE_DOCKERFILE: prod.Dockerfile
       REVERSE_IMAGE: docker.pkg.github.com/oosswwaalldd/docker-registry-poc/docker-poc-reverse
     steps: 
+      - name: Check out master branch  
+        uses: actions/checkout@v2
+        with:
+          ref: master
       - name: NodeJS Project Information
         id: get_version
         uses: gregoranders/nodejs-project-info@v0.0.1
@@ -34,10 +38,6 @@ jobs:
         run: |
           echo ${{ steps.get_version.outputs.version }}
           exit 1
-      - name: Check out master branch  
-        uses: actions/checkout@v2
-        with:
-          ref: master
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
