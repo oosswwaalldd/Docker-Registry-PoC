@@ -40,6 +40,7 @@ jobs:
         key: ${{ secrets.STAGE_SSH_KEY }}
         port: ${{ secrets.STAGE_SSH_PORT }}
         script_stop: true
+        envs: VERSION,WEBSERVER_ENV_FILE,WEBSERVER_CONTAINER_NAME,WEBSERVER_IMAGE,REVERSE_CONTAINER_NAME,REVERSE_ENV_FILE,REVERSE_IMAGE,NETWORK_NAME,LOG_DRIVER,LOG_FILES,LOG_SIZE
         script: |
           echo "CD to project folder"
           cd deploy
