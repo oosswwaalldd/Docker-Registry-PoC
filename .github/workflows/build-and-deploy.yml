@@ -25,12 +25,14 @@ jobs:
       REVERSE_DOCKERFILE: prod.Dockerfile
       REVERSE_IMAGE: docker.pkg.github.com/oosswwaalldd/docker-registry-poc/docker-poc-reverse
     steps: 
-      - name: Get current app version
+      - name: NodeJS Project Information
         id: get_version
-        uses: martinbeentjes/npm-get-version-action@v1.0.0
+        uses: gregoranders/nodejs-project-info@v0.0.1
+        with:
+          path: ./webserver/package.json
       - name: Test version 
         run: |
-          echo ${{ steps.get_version.outputs.current-version }}
+          echo ${{ steps.get_version.outputs.version }}
           exit 1
       - name: Check out master branch  
         uses: actions/checkout@v2
