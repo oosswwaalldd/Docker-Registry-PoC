@@ -9,7 +9,11 @@ on:
     branches: [ master ]
 #     paths-ignore: 
 #       - ".github/workflows/build-and-deploy.yml"
-        
+env:
+  WEBSERVER_DOCKERFILE: prod.Dockerfile
+  WEBSERVER_IMAGE: docker.pkg.github.com/oosswwaalldd/docker-registry-poc/docker-poc-webserver
+  REVERSE_DOCKERFILE: prod.Dockerfile
+  REVERSE_IMAGE: docker.pkg.github.com/oosswwaalldd/docker-registry-poc/docker-poc-reverse   
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   build:
@@ -18,11 +22,6 @@ jobs:
     strategy:
       matrix:
         node-version: [10.x]
-    env:
-      WEBSERVER_DOCKERFILE: prod.Dockerfile
-      WEBSERVER_IMAGE: docker.pkg.github.com/oosswwaalldd/docker-registry-poc/docker-poc-webserver
-      REVERSE_DOCKERFILE: prod.Dockerfile
-      REVERSE_IMAGE: docker.pkg.github.com/oosswwaalldd/docker-registry-poc/docker-poc-reverse
     steps: 
       - name: Check out master branch  
         uses: actions/checkout@v2
@@ -35,10 +34,6 @@ jobs:
           path: ./webserver/package.json
       - name: Set Project Version
         run: echo ::set-env name=VERSION::${{ steps.get_version.outputs.version }}
-      - name: Test version
-        run: |
-          echo $VERSION
-          exit 1
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
@@ -58,6 +53,7 @@ jobs:
         run: |
           docker push $REVERSE_IMAGE:$VERSION
           docker push $WEBSERVER_IMAGE:$VERSION 
+          exit 1
   deploy:
     # Depends on
     needs: [build]
