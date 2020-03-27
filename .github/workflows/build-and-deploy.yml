@@ -19,7 +19,6 @@ jobs:
       matrix:
         node-version: [10.x]
     env:
-      VERSION: 0.0.1
       WEBSERVER_DOCKERFILE: prod.Dockerfile
       WEBSERVER_IMAGE: docker.pkg.github.com/oosswwaalldd/docker-registry-poc/docker-poc-webserver
       REVERSE_DOCKERFILE: prod.Dockerfile
@@ -34,9 +33,11 @@ jobs:
         uses: gregoranders/nodejs-project-info@v0.0.1
         with:
           path: ./webserver/package.json
-      - name: Test version 
+      - name: Set Project Version
+        run: echo ::set-env name=VERSION::${{ steps.get_version.outputs.version }}
+      - name: Test version
         run: |
-          echo ${{ steps.get_version.outputs.version }}
+          echo $VERSION
           exit 1
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
@@ -56,7 +57,7 @@ jobs:
       - name: Push Images to Docker Registry
         run: |
           docker push $REVERSE_IMAGE:$VERSION
-          docker push $WEBSERVER_IMAGE:$VERSION  
+          docker push $WEBSERVER_IMAGE:$VERSION 
   deploy:
     # Depends on
     needs: [build]
@@ -64,6 +65,13 @@ jobs:
     runs-on: ubuntu-latest
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:       
+    - name: NodeJS Project Information
+      id: get_version
+      uses: gregoranders/nodejs-project-info@v0.0.1
+      with:
+        path: ./webserver/package.json
+    - name: Test version
+      run: echo ${{ steps.get_version.outputs.version }}
     # Connects to test server and run commands    
     - name: SSH Deploy Commands
       uses: appleboy/ssh-action@v0.0.7
