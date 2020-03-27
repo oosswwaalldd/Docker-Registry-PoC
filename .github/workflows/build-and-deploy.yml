@@ -30,7 +30,7 @@ jobs:
         run: echo ::set-output name=VERSION::${GITHUB_REF}
       - name: Test version 
         run: |
-          echo ${{ steps.get_version.outputs.VERSION }}
+          echo ${{ github.ref }}
           exit 1
       - name: Check out master branch  
         uses: actions/checkout@v2
