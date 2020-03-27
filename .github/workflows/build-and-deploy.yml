@@ -26,8 +26,11 @@ jobs:
       REVERSE_IMAGE: docker.pkg.github.com/oosswwaalldd/docker-registry-poc/docker-poc-reverse
     steps: 
       - name: Get Latest Tag
-        run: | 
-          echo Tag -> ${GITHUB_REF##*/} 
+        id: get_version
+        run: echo ::set-output name=VERSION::$(echo $GITHUB_REF | cut -d / -f 3)
+      - name: Test version 
+        run: |
+          echo ${{ steps.get_version.outputs.VERSION }}
           exit 1
       - name: Check out master branch  
         uses: actions/checkout@v2
