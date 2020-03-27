@@ -7,8 +7,8 @@ name: First Github Actions Ever!
 on:
   push:
     branches: [ master ]
-    paths-ignore: 
-      - ".github/workflows/build-and-deploy.yml"
+#     paths-ignore: 
+#       - ".github/workflows/build-and-deploy.yml"
         
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -24,15 +24,17 @@ jobs:
     - name: SSH Commands
       uses: appleboy/ssh-action@v0.0.2 
       with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
-        key: ${{ secrets.KEY }}
-        port: ${{ secrets.PORT }}
+        host: ${{ secrets.STAGE_HOST }}
+        username: ${{ secrets.STAGE_SSH_USER }}
+        key: ${{ secrets.STAGE_SSH_KEY }}
+        port: ${{ secrets.STAGE_SSH_PORT }}
+        script_stop: true
         script: |
+          cd deploy
           whoami
-          ls -al
+          lsd
     # Runs a set of commands using the runners shell
-    - name: Run a multi-line script
-      run: |
-        echo Add other actions to build,
-        echo test, and deploy your project.
+#     - name: Run a multi-line script
+#       run: |
+#         echo Add other actions to build,
+#         echo test, and deploy your project.
