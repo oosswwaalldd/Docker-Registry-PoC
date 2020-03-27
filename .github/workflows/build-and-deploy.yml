@@ -18,6 +18,12 @@ jobs:
     strategy:
       matrix:
         node-version: [10.x]
+    env:
+      VERSION: 0.0.1
+      WEBSERVER_DOCKERFILE: prod.Dockerfile
+      WEBSERVER_IMAGE: docker.pkg.github.com/oosswwaalldd/docker-registry-poc/docker-poc-webserver
+      REVERSE_DOCKERFILE: prod.Dockerfile
+      REVERSE_IMAGE: docker.pkg.github.com/oosswwaalldd/docker-registry-poc/docker-poc-reverse
     steps: 
       - name: Check out master branch  
         uses: actions/checkout@v2
@@ -27,9 +33,21 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - run: pwd && ls -aslh && cd webserver
-      - run: yarn install
-      - run: yarn run build --if-present
+      - name: Build Webserver Source Code
+        working-directory: ./webserver
+        run: yarn && yarn run build
+      - name: Build Webserver Image
+        working-directory: ./webserver
+        run: docker build --file $WEBSERVER_DOCKERFILE --tag $WEBSERVER_IMAGE:$VERSION .
+      - name: Build Reverse Image
+        working-directory: ./reverse
+        run: docker build --file $REVERSE_DOCKERFILE --tag $REVERSE_IMAGE:$VERSION .
+      - name: Log into GitHub Registry
+        run: docker login docker.pkg.github.com -u ${{ secrets.DOCKER_REGISTRY_USER }} --password ${{ secrets.DOCKER_REGISTRY_TOKEN }}
+      - name: Push Images to Docker Registry
+        run: |
+          docker push $REVERSE_IMAGE:$VERSION
+          docker push $WEBSERVER_IMAGE:$VERSION  
   deploy:
     # Depends on
     needs: [build]
