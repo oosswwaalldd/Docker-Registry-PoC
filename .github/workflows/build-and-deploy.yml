@@ -19,12 +19,12 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
     # Runs a set of commands using the runners shell
-#     - name: Run a multi-line script
-#       run: |
-#         echo ${{ secrets.STAGE_HOST }}
-#         echo ${{ secrets.STAGE_SSH_USER }}
-#         echo ${{ secrets.STAGE_SSH_KEY }}
-#         echo ${{ secrets.STAGE_SSH_PORT }}
+    - name: Run a multi-line script
+      env:
+        HOST: ${{ secrets.STAGE_HOST }}
+      run: |
+        echo host -> $HOST
+       
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
 #     - uses: actions/checkout@v2
     # Connects to test server and run commands    
