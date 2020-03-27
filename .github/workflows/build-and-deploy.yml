@@ -27,7 +27,7 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - run: pwd && ls -aslh && cd webserver
+      - run: pwd && ls -aslh && cd webserver && pwd && ls -aslh
       - run: yarn install
       - run: yarn run build --if-present
   deploy:
