@@ -35,15 +35,20 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: Build Webserver Source Code
         working-directory: ./webserver
-        run: |
-          echo ${GITHUB_REF:10}
-          exit 1
+        run: yarn && yarn run build
       - name: Build Webserver Image
         working-directory: ./webserver
         run: docker build --file $WEBSERVER_DOCKERFILE --tag $WEBSERVER_IMAGE:$VERSION .
       - name: Build Reverse Image
         working-directory: ./reverse
         run: docker build --file $REVERSE_DOCKERFILE --tag $REVERSE_IMAGE:$VERSION .
+      - name: Log into GitHub Registry
+        run: cat ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u oosswwaalldd --password-stdin
+      - name: Push Images to Docker Registry
+        run: |
+          docker push $REVERSE_IMAGE:$VERSION
+          docker push $WEBSERVER_IMAGE:$VERSION
+          exit 1
   
   deploy:
     # Depends on
