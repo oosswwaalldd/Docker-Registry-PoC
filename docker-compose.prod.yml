@@ -1,34 +1,32 @@
 version: "3"
 services:
   #####################################
-  # Reverse Proxy (NOT NEEDED IN DEV) #
+  # Reverse Proxy              #
   #####################################
   reverse:
     container_name: reverse
-    image: httpd:2.4-alpine
+    image: ${REGISTRY}/docker-poc-reverse:${VERSION}
     logging:
       driver: ${LOG_DRIVER}
       options:
         max-file: ${LOG_MAX_FILES}
         max-size: ${LOG_MAX_SIZE}
+    build:
+      context: ./reverse
+      dockerfile: prod.Dockerfile
     env_file:
-      - ./reverse/.env
+      - ./reverse/.prod.env
     ports:
       - ${HTTP_PORT}:${HTTP_PORT}
       - ${HTTPS_PORT}:${HTTPS_PORT}
-    volumes:
-      - ./reverse/httpd.conf:/usr/local/apache2/conf/httpd.conf
-      - ./reverse/extra/httpd-vhosts.conf:/usr/local/apache2/conf/extra/httpd-vhosts.conf
-      - ./reverse/extra/httpd-ssl.conf:/usr/local/apache2/conf/extra/httpd-ssl.conf
-      - ./reverse/ssl:/usr/local/apache2/ssl
     networks:
       - docker-registry-poc
   #####################################
-  # Express                           #
+  # App                               #
   #####################################
   webserver:
     container_name: webserver
-    image: docker-poc-webserver-dev
+    image: ${REGISTRY}/docker-poc-webserver:${VERSION}
     logging:
       driver: ${LOG_DRIVER}
       options:
@@ -36,13 +34,9 @@ services:
         max-size: ${LOG_MAX_SIZE}
     build:
       context: ./webserver
-    ports:
-      - "${EXPRESS_HOST_PORT}:${EXPRESS_CONTAINER_PORT}"
+      dockerfile: prod.Dockerfile
     env_file:
-      - ./webserver/.env
-    volumes:
-      - ./webserver:/server:delegated
-      - /server/node_modules
+      - ./webserver/.prod.env
     networks:
       - docker-registry-poc
 networks:

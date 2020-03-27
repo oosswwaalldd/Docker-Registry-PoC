@@ -9,13 +9,6 @@
 # testing
 /coverage
 
-# production
-/build
-/dist
-/prod
-/tmp
-/out-tsc
-
 # misc
 .DS_Store
 .env
@@ -32,12 +25,6 @@ yarn-error.log*
 /**/*.DS_Store
 /**/*.Thumbs.db
 
-# Storage
-/storage/*
-
-# Apis
-/backend/apis/pdf/vendor
-/prod/apis/pdf/vendor
 
 # IDEs and editors
 /.idea
@@ -56,7 +43,6 @@ yarn-error.log*
 !.vscode/extensions.json
 
 # misc
-/backend/scripts/tests
 /.sass-cache
 /connect.lock
 /coverage

@@ -1,7 +1,5 @@
 // Libs
 import { createServer } from 'http'
-import * as dotenv from 'dotenv'
-import config from './config'
 import httpServer from './express'
 
 // Database
@@ -10,8 +8,7 @@ import mongodb from './db'
 // Models
 import TestCollection from './models/test'
 
-// Read .env
-dotenv.config();
+console.log(process.env)
 
 const banner = `
 *********************************************************************************************

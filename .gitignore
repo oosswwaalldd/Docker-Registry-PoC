@@ -24,10 +24,14 @@
 /**/.env.development
 /**/.env.stage
 /**/.env.production
+/**/.prod.env
 
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Secrets
+github-packages-token
 
 
 # System Files
