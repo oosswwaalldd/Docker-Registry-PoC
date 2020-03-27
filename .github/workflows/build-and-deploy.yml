@@ -18,6 +18,8 @@ jobs:
     strategy:
       matrix:
         node-version: [10.x]
+    env:
+      TEST: OSY
     steps: 
       - name: Check out master branch  
         uses: actions/checkout@v2
@@ -27,11 +29,13 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - name: Yarn install && build
+      - name: Build Webserver
         working-directory: ./webserver
         run: |
           yarn install
           yarn run build
+          echo $TEST
+          exit 1
   deploy:
     # Depends on
     needs: [build]
