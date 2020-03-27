@@ -19,7 +19,11 @@ jobs:
       matrix:
         node-version: [10.x]
     env:
-      TEST: OSY
+      VERSION: 0.0.1
+      WEBSERVER_DOCKERFILE: prod.Dockerfile
+      WEBSERVER_IMAGE: docker.pkg.github.com/oosswwaalldd/docker-registry-poc/docker-poc-webserver
+      REVERSE_DOCKERFILE: prod.Dockerfile
+      REVERSE_IMAGE: docker.pkg.github.com/oosswwaalldd/docker-registry-poc/docker-poc-reverse
     steps: 
       - name: Check out master branch  
         uses: actions/checkout@v2
@@ -29,13 +33,18 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - name: Build Webserver
+      - name: Build Webserver Source Code
         working-directory: ./webserver
         run: |
-          yarn install
-          yarn run build
-          echo $TEST
+          echo ${GITHUB_REF:10}
           exit 1
+      - name: Build Webserver Image
+        working-directory: ./webserver
+        run: docker build --file $WEBSERVER_DOCKERFILE --tag $WEBSERVER_IMAGE:$VERSION .
+      - name: Build Reverse Image
+        working-directory: ./reverse
+        run: docker build --file $REVERSE_DOCKERFILE --tag $REVERSE_IMAGE:$VERSION .
+  
   deploy:
     # Depends on
     needs: [build]
