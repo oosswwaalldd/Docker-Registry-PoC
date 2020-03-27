@@ -24,6 +24,7 @@ jobs:
       uses: appleboy/ssh-action@v0.0.7
       env:
         VERSION: 0.0.1
+        PROJECT_FOLDER: /home/simpi/deploy
         WEBSERVER_ENV_FILE: .webserver.env
         WEBSERVER_CONTAINER_NAME: docker-poc-webserver
         WEBSERVER_IMAGE: docker.pkg.github.com/oosswwaalldd/docker-registry-poc/docker-poc-webserver
@@ -40,10 +41,11 @@ jobs:
         key: ${{ secrets.STAGE_SSH_KEY }}
         port: ${{ secrets.STAGE_SSH_PORT }}
         script_stop: true
-        envs: VERSION,WEBSERVER_ENV_FILE,WEBSERVER_CONTAINER_NAME,WEBSERVER_IMAGE,REVERSE_CONTAINER_NAME,REVERSE_ENV_FILE,REVERSE_IMAGE,NETWORK_NAME,LOG_DRIVER,LOG_FILES,LOG_SIZE
+        envs: VERSION,WEBSERVER_ENV_FILE,WEBSERVER_CONTAINER_NAME,WEBSERVER_IMAGE,REVERSE_CONTAINER_NAME,REVERSE_ENV_FILE,REVERSE_IMAGE,NETWORK_NAME,LOG_DRIVER,LOG_FILES,LOG_SIZE,PROJECT_FOLDER
         script: |
-          echo "CD to project folder"
-          cd deploy
+          echo "Project Version: $VERSION"
+          echo "Changing to project folder $PROJECT_FOLDER..."
+          cd $PROJECT_FOLDER
           
           echo "Stopping and removing $WEBSERVER_CONTAINER_NAME..."
           docker stop $WEBSERVER_CONTAINER_NAME && docker rm $WEBSERVER_CONTAINER_NAME
@@ -53,8 +55,8 @@ jobs:
           docker network remove $NETWORK_NAME
           
           echo "Pulling images..."
-          docker pull $WEBSERVER_IMAGE
-          docker pull $REVERSE_IMAGE
+          docker pull $WEBSERVER_IMAGE:$VERSION
+          docker pull $REVERSE_IMAGE:$VERSION
           
           echo "Creating network $NETWORK_NAME..."
           docker network create $NETWORK_NAME --driver bridge
