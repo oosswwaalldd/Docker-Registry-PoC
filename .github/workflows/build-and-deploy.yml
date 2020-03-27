@@ -7,8 +7,8 @@ name: First Github Actions Ever!
 on:
   push:
     branches: [ master ]
-#     paths-ignore: 
-#       - ".github/workflows/build-and-deploy.yml"
+    paths-ignore: 
+      - ".github/workflows/build-and-deploy.yml"
         
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
