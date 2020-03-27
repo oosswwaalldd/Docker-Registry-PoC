@@ -25,12 +25,12 @@ jobs:
       REVERSE_DOCKERFILE: prod.Dockerfile
       REVERSE_IMAGE: docker.pkg.github.com/oosswwaalldd/docker-registry-poc/docker-poc-reverse
     steps: 
-      - name: Get Latest Tag
+      - name: Get current app version
         id: get_version
-        run: echo ::set-output name=VERSION::${GITHUB_REF}
+        uses: martinbeentjes/npm-get-version-action@v1.0.0
       - name: Test version 
         run: |
-          echo ${{ github.ref }}
+          echo ${{ steps.get_version.outputs.current-version }}
           exit 1
       - name: Check out master branch  
         uses: actions/checkout@v2
