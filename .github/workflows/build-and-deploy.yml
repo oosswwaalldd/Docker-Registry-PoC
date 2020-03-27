@@ -12,8 +12,7 @@ on:
         
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
+  deploy:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
     # Steps represent a sequence of tasks that will be executed as part of the job
@@ -23,6 +22,18 @@ jobs:
     # Connects to test server and run commands    
     - name: SSH Commands
       uses: appleboy/ssh-action@v0.0.7
+      env:
+        VERSION: 0.0.1
+        WEBSERVER_ENV_FILE: .webserver.env
+        WEBSERVER_CONTAINER_NAME: docker-poc-webserver
+        WEBSERVER_IMAGE: docker.pkg.github.com/oosswwaalldd/docker-registry-poc/docker-poc-webserver
+        REVERSE_CONTAINER_NAME: docker-poc-reverse
+        REVERSE_ENV_FILE: .reverse.env
+        REVERSE_IMAGE: docker.pkg.github.com/oosswwaalldd/docker-registry-poc/docker-poc-reverse
+        NETWORK_NAME: docker-registry-poc
+        LOG_DRIVER: json-file
+        LOG_FILES: 5
+        LOG_SIZE: 10m
       with:
         host: ${{ secrets.STAGE_HOST }}
         username: ${{ secrets.STAGE_SSH_USER }}
@@ -30,5 +41,43 @@ jobs:
         port: ${{ secrets.STAGE_SSH_PORT }}
         script_stop: true
         script: |
+          echo "CD to project folder"
           cd deploy
-          ./deploy.sh
+          
+          echo "Stopping and removing $WEBSERVER_CONTAINER_NAME..."
+          docker stop $WEBSERVER_CONTAINER_NAME && docker rm $WEBSERVER_CONTAINER_NAME
+          echo "Stopping and removing $REVERSE_CONTAINER_NAME..."
+          docker stop $REVERSE_CONTAINER_NAME && docker rm $REVERSE_CONTAINER_NAME
+          echo "Removing network $NETWORK_NAME..."
+          docker network remove $NETWORK_NAME
+          
+          echo "Pulling images..."
+          docker pull $WEBSERVER_IMAGE
+          docker pull $REVERSE_IMAGE
+          
+          echo "Creating network $NETWORK_NAME..."
+          docker network create $NETWORK_NAME --driver bridge
+          
+          echo "Running container $WEBSERVER_CONTAINER_NAME"
+          docker run \
+          --env-file=$WEBSERVER_ENV_FILE \
+          --detach \
+          --network="$NETWORK_NAME" \
+          --name $WEBSERVER_CONTAINER_NAME \
+          --log-driver $LOG_DRIVER \
+          --log-opt max-file=$LOG_FILES \
+          --log-opt max-size=$LOG_SIZE \
+          $WEBSERVER_IMAGE:$VERSION
+          
+          echo "Running container $REVERSE_CONTAINER_NAME"
+          docker run \
+          --env-file=$REVERSE_ENV_FILE \
+          --detach \
+          --publish 80:80 \
+          --publish 443:443 \
+          --network="$NETWORK_NAME" \
+          --name $REVERSE_CONTAINER_NAME \
+          --log-driver $LOG_DRIVER \
+          --log-opt max-file=$LOG_FILES \
+          --log-opt max-size=$LOG_SIZE \
+          $REVERSE_IMAGE:$VERSION
